@@ -18,6 +18,8 @@ prog=sinopia
 ECHO_CMD=/bin/echo
 RM_CMD=/bin/rm
 SU_CMD=/bin/su
+CAT_CMD=/bin/cat
+KILL_CMD=/bin/kill
 
 start() {
 		if [ -f $SINOPIA_PIDFILE ]; then
@@ -31,16 +33,16 @@ start() {
 		      $RM_CMD -f $SINOPIA_PIDFILE
 		    fi
 		  fi
-        echo -n $"Starting $prog: "
+        $ECHO_CMD -n $"Starting $prog: "
         	$SU_CMD - $SINOPIA_USER -c "cd $EXEC_DIR ; nohup $SINOPIA_BIN >>$SINOPIA_LOG 2>&1 & echo \$! >$SINOPIA_PIDFILE"        	
         return $?
 }
 
 stop() {
-        echo -n $"Stopping $prog: "
-        kill $(echo ${SINOPIA_PIDFILE})
+        $ECHO_CMD -n $"Stopping $prog: "
+        $KILL_CMD $($CAT_CMD ${SINOPIA_PIDFILE})
         RETVAL=$?
-        echo
+        $ECHO_CMD
         [ $RETVAL = 0 ] && rm -f ${SINOPIA_PIDFILE}
 }
 
