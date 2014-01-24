@@ -1,5 +1,5 @@
 name    'saheba-sinopia'
-version '1.0.0'
+version '1.0.1'
 source 'https://github.com/saheba/puppet-sinopia.git'
 author 'saheba'
 license 'ASL'
