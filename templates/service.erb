@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# Sinopia deamon control script
+#
+# chkconfig: - 80 20
+# description: Sinopia NPM Proxy/Cache Server
+# processname: sinopia
+# pidfile: <%= @install_path %>/srv.pid
+# config: <%= @install_path %>/config.yaml
+SINOPIA_BIN=<%= @install_path %>/node_modules/sinopia/bin/sinopia
+SINOPIA_USER=<%= @deamon_user %>
+SINOPIA_LOG=<%= @install_path %>/deamon.log
+SINOPIA_PIDFILE=<%= @install_path %>/srv.pid
+EXEC_DIR=<%= @install_path %>
+STOP_TIMEOUT=10
+prog=sinopia
+
+ECHO_CMD=/bin/echo
+RM_CMD=/bin/rm
+SU_CMD=/bin/su
+
+start() {
+		if [ -f $SINOPIA_PIDFILE ]; then
+		    read ppid < $SINOPIA_PIDFILE
+		    if [ `ps --pid $ppid 2> /dev/null | grep -c $ppid 2> /dev/null` -eq '1' ]; then
+		      $ECHO_CMD -n "$prog is already running"
+		      failure
+		      $ECHO_CMD
+		      return 1 
+		    else
+		      $RM_CMD -f $SINOPIA_PIDFILE
+		    fi
+		  fi
+        echo -n $"Starting $prog: "
+        	$SU_CMD - $SINOPIA_USER -c "cd $EXEC_DIR ; nohup $SINOPIA_BIN >>$SINOPIA_LOG 2>&1 & echo \$! >$SINOPIA_PIDFILE"        	
+        return $?
+}
+
+stop() {
+        echo -n $"Stopping $prog: "
+        kill $(echo ${SINOPIA_PIDFILE})
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && rm -f ${SINOPIA_PIDFILE}
+}
+
+status() {
+  if [ -f $SINOPIA_PIDFILE ]; then
+    read ppid < $SINOPIA_PIDFILE
+    if [ `ps --pid $ppid 2> /dev/null | grep -c $ppid 2> /dev/null` -eq '1' ]; then
+      $ECHO_CMD "$prog is running (pid $ppid)"
+      return 0
+    else
+      $ECHO_CMD "$prog dead but pid file exists"
+      return 1
+    fi
+  fi
+  $ECHO_CMD "$prog is not running"
+  return 3
+}
+
+case "$1" in
+  start)
+      start
+      ;;
+  stop)
+      stop
+      ;;
+  restart)
+      $0 stop
+      $0 start
+      ;;
+  status)
+      status
+      ;;
+  *)
+      ## If no parameters are given, print which are avaiable.
+      $ECHO_CMD "Usage: $0 {start|stop|status|restart}"
+      exit 1
+      ;;
+esac
