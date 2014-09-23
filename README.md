@@ -6,7 +6,7 @@ Install sinopia npm-cache-server (https://github.com/rlidwka/sinopia) for Debian
 
 ## Dependencies
 
-This module depends on the changes of a not yet merged pull request in puppetlabs/nodejs: https://github.com/puppetlabs/puppetlabs-nodejs/pull/63.
+This module depends on the changes of a not yet merged pull request in puppetlabs/nodejs: https://github.com/puppetlabs/puppetlabs-nodejs/pull/86.
 Until they are merged you have to explicitely specify the dependency to nodejs in your librarian-puppet Puppetfile:
 
 
@@ -15,7 +15,7 @@ Until they are merged you have to explicitely specify the dependency to nodejs i
   # replace it with:
   mod "puppetlabs/nodejs",
   :git => "https://github.com/saheba/puppetlabs-nodejs.git",
-  :ref => 'npm_local_exec_user_param'  
+  :ref => 'exec_user_param'  
 ```
 
 ## Usage
