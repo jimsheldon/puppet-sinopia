@@ -15,12 +15,16 @@ Until they are merged you have to explicitely specify the dependency to nodejs i
   # replace it with:
   mod "puppetlabs/nodejs",
   :git => "https://github.com/saheba/puppetlabs-nodejs.git",
-  :ref => 'exec_user_param'  
+  :ref => 'sinopia-patch'  
 ```
 
 ## Usage
 
-### class sinopia
+There are two variants to install sinopia using this Puppet module: Apply-mode (with puppet-apply and no puppetmaster setup needed) or Master-Agent-mode (with puppet-agent accessing your configuration through the puppetmaster). In both variants you have to explicitely call "class nodejs {}" in your puppet script because the puppet-sinopia module only defines this as a requirement, so you have all the flexibility you want when installing nodejs. Scroll down for details about both variants.
+
+### General usage
+
+#### class sinopia
 
 Installs sinopia + required npms in one defined directory and integrates the sinopia as a service (/etc/init.d/sinopia). It also creates a user to run the sinopia server (default: sinopia). If you wish, you can change the username, see examples below.
 
@@ -74,8 +78,74 @@ The default values for all so far configurable parameters are:
   }
 ```
 
+### Apply-mode installation
+
+Here is an example for an Apply-mode installation in Debian Wheezy:
+
+1. Install puppet and facter according to https://docs.puppetlabs.com/guides/install_puppet/pre_install.html#next-install-puppet:
+```bash  
+  wget https://apt.puppetlabs.com/puppetlabs-release-wheezy.deb
+  dpkg -i puppetlabs-release-wheezy.deb
+  apt-get update
+  apt-get -y install puppet facter
+```
+2. Download/clone all required modules into a modules directory:
+```bash  
+  mkdir -p /opt/pp-sinopia/modules ; cd /opt/pp-sinopia/modules
+  
+  git clone https://github.com/puppetlabs/puppetlabs-stdlib.git stdlib
+  git clone https://github.com/puppetlabs/puppetlabs-apt.git apt
+  # for RHEL/Fedora/CentOS you will probably need yumrepo instead of apt
+  
+  git clone https://github.com/saheba/puppetlabs-nodejs.git nodejs
+  
+  git clone https://github.com/saheba/puppet-sinopia.git sinopia
+```
+
+3. Switch to the appropriate of the puppet-sinopia module:
+```bash  
+  cd /opt/pp-sinopia/modules/sinopia
+  git checkout sinopia-patch
+```
+
+4. Create a puppet script file:
+```bash  
+  vim /opt/pp-sinopia/run.pp
+```
+
+5.run.pp content example:
+```bash  
+  class { 'nodejs':
+    # this automatically installs nodejs and npm and adds the required OS package repo(s)
+    manage_repo => true,
+  }
+  class { '::sinopia':
+    conf_admin_pw_hash => 'your-pw-hash',
+  }
+```
+
+6. run puppet-apply with your script and the downloaded modules:
+```bash  
+  puppet apply --modulepath=/opt/pp-sinopia/modules /opt/pp-sinopia/run.pp
+```
+
+
+### Master-Agent-mode installation
+
+In your puppet script for your agent add:
+```bash  
+  class { 'nodejs':
+    # this automatically installs nodejs and npm and adds the required OS package repo(s)
+    manage_repo => true,
+  }
+  class { '::sinopia':
+    conf_admin_pw_hash => 'your-pw-hash',
+  }
+```
+
 ## Supported Platforms
 
-The module has been tested on the following operating systems. Testing and patches for other platforms are welcomed.
+The module has been tested on the following operating systems. Testing and patches for other platforms are welcome.
 
 * RedHat EL6.
+* Debian Wheezy.
