@@ -11,6 +11,6 @@ project_page 'https://github.com/saheba/puppet-sinopia'
 # dependency 'username/name', '>= 1.2.0'
 # you have to explicitely define this dependency in your Puppetfile 
 # until changes required for this module are merged into the official 
-# puppetlabs/nodejs repository.
+# willdurand/puppet-nodejs repository.
 # a sample dependency declaration is given in the README.md.
-dependency 'puppetlabs/nodejs', '>= 0.4.1'
+dependency 'willdurand/nodejs', '>= 1.6.5'
