@@ -6,16 +6,16 @@ Install sinopia npm-cache-server (https://github.com/rlidwka/sinopia) for Debian
 
 ## Dependencies
 
-This module depends on the changes of a not yet merged pull request in puppetlabs/nodejs: https://github.com/puppetlabs/puppetlabs-nodejs/pull/86.
+This module depends on the changes of a not yet merged pull request in willdurand/puppet-nodejs: https://github.com/willdurand/puppet-nodejs/pull/65.
 Until they are merged you have to explicitely specify the dependency to nodejs in your librarian-puppet Puppetfile:
 
 
 ```bash
-  # dependency puppetlabs/nodejs
+  # dependency nodejs
   # replace it with:
-  mod "puppetlabs/nodejs",
-  :git => "https://github.com/saheba/puppetlabs-nodejs.git",
-  :ref => 'sinopia-patch'  
+  mod "willdurand/nodejs",
+  :git => "https://github.com/saheba/puppet-nodejs.git",
+  :ref => 'npm_management'  
 ```
 
 ## Usage
@@ -49,15 +49,15 @@ You can also override several configuration parameters.
 
 ```bash
   class { '::sinopia':
-    install_root       	=> '/usr/local',
-    install_dir        	=> 'sinopiaxy',
-    conf_admin_pw_hash 	=> 'your-pw-hash',
-    conf_port          	=> '8080',
-    deamon_user        	=> 'sinopiaxy',
+    install_root       	    => '/usr/local',
+    install_dir        	    => 'sinopiaxy',
+    conf_admin_pw_hash 	    => 'your-pw-hash',
+    conf_port          	    => '8080',
+    deamon_user        	    => 'sinopiaxy',
     conf_listen_to_address 	=> '127.0.0.1',
-    conf_max_body_size	=> '10mb',
-    conf_max_age_in_sec	=> '604800',
-    install_as_service	=> false,
+    conf_max_body_size	    => '10mb',
+    conf_max_age_in_sec	    => '604800',
+    install_as_service	    => false,
   }
 ```
 
@@ -65,16 +65,16 @@ The default values for all so far configurable parameters are:
 
 ```bash  
   class { '::sinopia':
-    install_root       	=> '/opt',
-    install_dir        	=> 'sinopia',
-    deamon_user        	   => 'sinopia',
-    conf_listen_to_address 	   => '0.0.0.0',
-    conf_port          	   => '4783',
+    install_root       	      => '/opt',
+    install_dir        	      => 'sinopia',
+    deamon_user        	      => 'sinopia',
+    conf_listen_to_address    => '0.0.0.0',
+    conf_port          	      => '4783',
     conf_admin_pw_hash
     conf_user_pw_combinations => undef,
-    conf_max_body_size	   => '1mb',
-    conf_max_age_in_sec	   => '86400',
-    install_as_service	   => true,
+    conf_max_body_size	      => '1mb',
+    conf_max_age_in_sec	      => '86400',
+    install_as_service	      => true,
   }
 ```
 
@@ -97,7 +97,7 @@ Here is an example for an Apply-mode installation in Debian Wheezy:
   git clone https://github.com/puppetlabs/puppetlabs-apt.git apt
   # for RHEL/Fedora/CentOS you will probably need yumrepo instead of apt
   
-  git clone https://github.com/saheba/puppetlabs-nodejs.git nodejs
+  git clone https://github.com/saheba/puppet-nodejs.git nodejs
   
   git clone https://github.com/saheba/puppet-sinopia.git sinopia
 ```
@@ -105,7 +105,8 @@ Here is an example for an Apply-mode installation in Debian Wheezy:
 3. Switch to the appropriate of the puppet-sinopia module:
 ```bash  
   cd /opt/pp-sinopia/modules/sinopia
-  git checkout sinopia-patch
+  git fetch --all
+  git checkout npm_management
 ```
 
 4. Create a puppet script file:
@@ -116,8 +117,8 @@ Here is an example for an Apply-mode installation in Debian Wheezy:
 5.run.pp content example:
 ```bash  
   class { 'nodejs':
-    # this automatically installs nodejs and npm and adds the required OS package repo(s)
-    manage_repo => true,
+    # this automatically installs nodejs and npm
+    make_default => true,
   }
   class { '::sinopia':
     conf_admin_pw_hash => 'your-pw-hash',
@@ -135,9 +136,9 @@ Here is an example for an Apply-mode installation in Debian Wheezy:
 In your puppet script for your agent add:
 ```bash  
   class { 'nodejs':
-    # this automatically installs nodejs and npm and adds the required OS package repo(s)
-    manage_repo => true,
-  }
+    # this automatically installs nodejs and npm
+    make_default => true,
+ }
   class { '::sinopia':
     conf_admin_pw_hash => 'your-pw-hash',
   }
