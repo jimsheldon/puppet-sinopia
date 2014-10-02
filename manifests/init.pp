@@ -10,7 +10,8 @@
 # > crypto.createHash('sha1').update('newpass').digest('hex')
 #
 # conf_listen_to_address
-# the ip4 address your proxy is supposed to listen to, default 0.0.0.0 (=all addresses)
+# the ip4 address your proxy is supposed to listen to,
+# default 0.0.0.0 (=all addresses)
 #
 # Actions:
 #
@@ -30,7 +31,7 @@ class sinopia (
   $conf_max_age_in_sec       = '86400',
   $install_as_service        = true,) {
   require nodejs
-  $install_path = "$install_root/$install_dir"
+  $install_path = "${install_root}/${install_dir}"
 
   group { $deamon_user:
     ensure => present,
@@ -55,35 +56,35 @@ class sinopia (
   }
     
   ### ensures, that always the latest versions of npm modules are installed ###
-  $modules_path="$install_path/node_modules"
-  file { "$modules_path":
+  $modules_path="${install_path}/node_modules"
+  file { $modules_path:
     ensure => absent,
   }
 
   $service_notify = $install_as_service ? {
-     default => undef,
-     true => Service['sinopia']     
+    default => undef,
+    true => Service['sinopia']
   }
-  nodejs::npm { "$install_path:sinopia":
-    ensure  => present,
-    require => [File[$install_path,$modules_path],User[$deamon_user]],
-    notify => $service_notify,
+  nodejs::npm { "${install_path}:sinopia":
+    ensure       => present,
+    require      => [File[$install_path,$modules_path],User[$deamon_user]],
+    notify       => $service_notify,
     exec_as_user => $deamon_user,
   }
 
   ###
   # config.yaml requires $admin_pw_hash, $port, $listen_to_address
   ###
-  file { "$install_path/config.yaml":
+  file { "${install_path}/config.yaml":
     ensure  => present,
     owner   => $deamon_user,
     group   => $deamon_user,
     content => template('sinopia/config.yaml.erb'),
     require => File[$install_path],
-    notify => $service_notify,
+    notify  => $service_notify,
   }
- 
-  file { "$install_path/deamon.log":
+
+  file { "${install_path}/deamon.log":
     ensure  => present,
     owner   => $deamon_user,
     group   => $deamon_user,
@@ -91,20 +92,24 @@ class sinopia (
   }
 
   if $install_as_service {
-    $init_file = "/etc/init.d/sinopia"
+    $init_file = '/etc/init.d/sinopia'
 
     file { $init_file:
       content => template('sinopia/service.erb'),
-      mode => '0755',
-      notify => $service_notify,
+      mode    => '0755',
+      notify  => $service_notify,
     }
 
-    service { "sinopia":
+    service { 'sinopia':
       ensure    => running,
       enable    => true,
       hasstatus => true,
       restart   => true,
-      require   => File[$init_file,"$install_path/config.yaml","$install_path/deamon.log"]
+      require   => File[
+        $init_file,
+        "${install_path}/config.yaml",
+        "${install_path}/deamon.log"
+      ]
     }
   }
 
