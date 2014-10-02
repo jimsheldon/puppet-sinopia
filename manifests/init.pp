@@ -54,7 +54,7 @@ class sinopia (
     group   => $deamon_user,
     require => [User[$deamon_user], Group[$deamon_user]]
   }
-    
+
   ### ensures, that always the latest versions of npm modules are installed ###
   $modules_path="${install_path}/node_modules"
   file { $modules_path:
@@ -112,5 +112,4 @@ class sinopia (
       ]
     }
   }
-
 }
